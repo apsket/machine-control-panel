@@ -22,16 +22,32 @@ function App() {
     return () => clearInterval(interval)   // cleanup on unmount
   }, [])
 
+  // Poll motor speed and valve state every 200ms (or whatever SCAN_INTERVAL you chose)
+  useEffect(() => {
+    const fetchMachineState = () => {
+      fetch("http://127.0.0.1:8000/motor")
+        .then((res) => res.json())
+        .then((data) => setMotorSpeed(data.speed))
+        .catch(console.error)
+
+      fetch("http://127.0.0.1:8000/valve")
+        .then((res) => res.json())
+        .then((data) => setValveOpen(data.open))
+        .catch(console.error)
+    }
+
+    fetchMachineState() // initial fetch
+    const interval = setInterval(fetchMachineState, 200)
+    return () => clearInterval(interval)
+  }, [])
+
   // Motor control handler
   const handleSetSpeed = (speed) => {
     fetch("http://127.0.0.1:8000/motor", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ speed }),
-    })
-      .then((res) => res.json())
-      .then((data) => setMotorSpeed(data.speed))
-      .catch((err) => console.error(err))
+    }).catch((err) => console.error(err))
   }
 
   // Valve control handler
@@ -40,10 +56,7 @@ function App() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ open }),
-    })
-      .then((res) => res.json())
-      .then((data) => setValveOpen(data.open))
-      .catch((err) => console.error(err))
+    }).catch((err) => console.error(err))
   }
 
   return (

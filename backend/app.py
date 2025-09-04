@@ -85,7 +85,7 @@ def set_motor(req: MotorRequest):
     # enforce range of speeds
     requested_speed = req.speed
     machine_state["motor_target_speed"] = max(MIN_MOTOR_SPEED, min(MAX_MOTOR_SPEED, requested_speed))
-    return {"target_speed": machine_state["motor_target_speed"]}
+    return {"speed": machine_state["motor_target_speed"]}
 
 
 # Valve
