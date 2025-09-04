@@ -77,7 +77,7 @@ async def startup_event():
 # Motor
 @app.get("/motor")
 def get_motor():
-    return {"speed": machine_state["motor_speed"]}
+    return {"speed": machine_state["motor_actual_speed"]}
 
 
 @app.post("/motor")
