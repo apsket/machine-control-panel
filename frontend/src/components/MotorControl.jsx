@@ -1,11 +1,14 @@
 import { useState } from "react"
 
 export default function MotorControl({ motorSpeed, onSetSpeed, changing }) {
-  const [inputValue, setInputValue] = useState(motorSpeed)
+  const [inputValue, setInputValue] = useState("")
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSetSpeed(Number(inputValue))
+    if (inputValue !== "") {
+      onSetSpeed(Number(inputValue))
+      setInputValue("") // clear input after submitting
+    }
   }
 
   return (
@@ -21,6 +24,7 @@ export default function MotorControl({ motorSpeed, onSetSpeed, changing }) {
           className="border border-gray-300 rounded px-2 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Enter new speed"
           disabled={changing}
         />
         <button
