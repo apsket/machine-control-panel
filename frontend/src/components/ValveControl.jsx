@@ -1,14 +1,17 @@
-export default function ValveControl({ valveOpen, onToggleValve }) {
+function ValveControl({ valveOpen, onToggleValve }) {
   return (
-    <div className="p-4 rounded-2xl shadow bg-white">
-      <h2 className="text-xl font-semibold mb-2">Valve Control</h2>
-      <p className="mb-2">
-        Valve is: <span className="font-bold">{valveOpen ? "Open" : "Closed"}</span>
+    <div className="bg-white shadow-lg rounded-2xl p-6 w-80 flex flex-col items-center text-center">
+      <h2 className="text-xl font-semibold text-gray-700 mb-3">Valve Control</h2>
+      <p className="text-gray-600 mb-4">
+        Valve is currently:{" "}
+        <span className={`font-bold ${valveOpen ? "text-green-600" : "text-red-600"}`}>
+          {valveOpen ? "Open" : "Closed"}
+        </span>
       </p>
       <button
         onClick={() => onToggleValve(!valveOpen)}
-        className={`px-3 py-1 rounded text-white ${
-          valveOpen ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+        className={`px-5 py-2 rounded-lg font-medium shadow transition ${
+          valveOpen ? "bg-red-500 hover:bg-red-600 text-white" : "bg-green-500 hover:bg-green-600 text-white"
         }`}
       >
         {valveOpen ? "Close Valve" : "Open Valve"}
@@ -16,3 +19,5 @@ export default function ValveControl({ valveOpen, onToggleValve }) {
     </div>
   )
 }
+
+export default ValveControl
