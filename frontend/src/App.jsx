@@ -8,22 +8,15 @@ function App() {
   const [valveOpen, setValveOpen] = useState(false)
   const [temperature, setTemperature] = useState(null)
 
-  // Fetch temperature every 90 seconds
-  useEffect(() => {
-    const fetchTemperature = () => {
-      fetch("http://127.0.0.1:8000/temperature")
-        .then((res) => res.json())
-        .then((data) => setTemperature(data.temperature))
-        .catch((err) => console.error(err))
-    }
-    fetchTemperature()
-    const interval = setInterval(fetchTemperature, 90000)
-    return () => clearInterval(interval)
-  }, [])
+  // Flags to show "in-progress" actions
+  const [motorChanging, setMotorChanging] = useState(false)
+  const [valveChanging, setValveChanging] = useState(false)
 
-  // Poll machine state
+  // ------------------------
+  // Polling loop
+  // ------------------------
   useEffect(() => {
-    const fetchMachineState = () => {
+    const interval = setInterval(() => {
       fetch("http://127.0.0.1:8000/motor")
         .then((res) => res.json())
         .then((data) => setMotorSpeed(data.speed))
@@ -33,50 +26,66 @@ function App() {
         .then((res) => res.json())
         .then((data) => setValveOpen(data.open))
         .catch(console.error)
-    }
-    fetchMachineState()
-    const interval = setInterval(fetchMachineState, 500)
+
+      fetch("http://127.0.0.1:8000/temperature")
+        .then((res) => res.json())
+        .then((data) => setTemperature(data.temperature))
+        .catch(console.error)
+    }, 500) // poll every 0.5s
     return () => clearInterval(interval)
   }, [])
 
-  const handleSetSpeed = (speed) => {
-    fetch("http://127.0.0.1:8000/motor", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ speed }),
-    }).catch((err) => console.error(err))
+  // ------------------------
+  // Handlers
+  // ------------------------
+  const handleSetSpeed = async (speed) => {
+    setMotorChanging(true)
+    try {
+      await fetch("http://127.0.0.1:8000/motor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ speed }),
+      })
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setMotorChanging(false)
+    }
   }
 
-  const handleToggleValve = (open) => {
-    fetch("http://127.0.0.1:8000/valve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ open }),
-    }).catch((err) => console.error(err))
+  const handleToggleValve = async (open) => {
+    setValveChanging(true)
+    try {
+      await fetch("http://127.0.0.1:8000/valve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ open }),
+      })
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setValveChanging(false)
+    }
   }
 
+  // ------------------------
+  // Render
+  // ------------------------
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-4xl font-bold mb-12 text-gray-800 text-center">
-          Machine Control Panel
-        </h1>
-        
-        <div className="w-full h-px bg-gray-300 border-0 flex-shrink-0">
-          <MotorControl motorSpeed={motorSpeed} onSetSpeed={handleSetSpeed} />
-          
-          <div className="w-full max-w-2xl my-8">
-            <hr className="w-full h-px bg-gray-300 border-0" />
-          </div>
-          
-          <ValveControl valveOpen={valveOpen} onToggleValve={handleToggleValve} />
-          
-          <div className="w-full max-w-2xl my-8">
-            <hr className="w-full h-px bg-gray-300 border-0" />
-          </div>
-          
-          <TemperatureDisplay temperature={temperature} />
-        </div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-3xl font-bold mb-6">Machine Control Panel</h1>
+      <div className="grid gap-6 md:grid-cols-3">
+        <MotorControl
+          motorSpeed={motorSpeed}
+          onSetSpeed={handleSetSpeed}
+          changing={motorChanging}
+        />
+        <ValveControl
+          valveOpen={valveOpen}
+          onToggleValve={handleToggleValve}
+          changing={valveChanging}
+        />
+        <TemperatureDisplay temperature={temperature} />
       </div>
     </div>
   )
