@@ -42,9 +42,8 @@ machine_state = {
 # -------------------------
 # PLC scan loop
 # -------------------------
-SCAN_INTERVAL = 0.2  # seconds
-MOTOR_STEP = 1       # speed change per scan
-VALVE_DELAY = 0.2    # seconds
+SCAN_INTERVAL = 0.1  # seconds
+VALVE_DELAY = 2    # seconds
 
 
 async def plc_scan_loop():
@@ -52,10 +51,10 @@ async def plc_scan_loop():
         # Motor: simulate gradual change in speed
         current_speed = machine_state["motor_actual_speed"]
         requested_speed = machine_state["motor_target_speed"]
-        step = 1 if requested_speed > current_speed else -1
-        for s in range(current_speed, requested_speed+step, step):
-            machine_state["motor_actual_speed"] = s
-            await asyncio.sleep(0.02)
+        if requested_speed < current_speed:
+            machine_state["motor_actual_speed"] -= 1
+        elif requested_speed > current_speed:
+            machine_state["motor_actual_speed"] += 1
 
         # Valve: simulate requested state with delay
         if machine_state["valve_open"] != machine_state["valve_target"]:

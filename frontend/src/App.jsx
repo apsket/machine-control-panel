@@ -18,7 +18,7 @@ function App() {
     }
 
     fetchTemperature()                     // initial fetch
-    const interval = setInterval(fetchTemperature, 90000) // every 90s
+    const interval = setInterval(fetchTemperature, 120000) // every 120s
     return () => clearInterval(interval)   // cleanup on unmount
   }, [])
 
