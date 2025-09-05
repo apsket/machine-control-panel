@@ -8,15 +8,31 @@ function App() {
   const [valveOpen, setValveOpen] = useState(false)
   const [temperature, setTemperature] = useState(null)
 
-  // Flags to show "in-progress" actions
+  // Flags and targets
   const [motorChanging, setMotorChanging] = useState(false)
+  const [motorTarget, setMotorTarget] = useState(null)
+
   const [valveChanging, setValveChanging] = useState(false)
+  const [valveTarget, setValveTarget] = useState(null)
 
   // ------------------------
-  // Polling loop
+  // Polling loops
   // ------------------------
   useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchTemperature = () => {
+      fetch("http://127.0.0.1:8000/temperature")
+        .then((res) => res.json())
+        .then((data) => setTemperature(data.temperature))
+        .catch(console.error)
+    }
+
+    fetchTemperature()
+    const interval = setInterval(fetchTemperature, 120000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const fetchMachineState = () => {
       fetch("http://127.0.0.1:8000/motor")
         .then((res) => res.json())
         .then((data) => setMotorSpeed(data.speed))
@@ -26,12 +42,10 @@ function App() {
         .then((res) => res.json())
         .then((data) => setValveOpen(data.open))
         .catch(console.error)
+    }
 
-      fetch("http://127.0.0.1:8000/temperature")
-        .then((res) => res.json())
-        .then((data) => setTemperature(data.temperature))
-        .catch(console.error)
-    }, 500) // poll every 0.5s
+    fetchMachineState()
+    const interval = setInterval(fetchMachineState, 200)
     return () => clearInterval(interval)
   }, [])
 
@@ -39,6 +53,7 @@ function App() {
   // Handlers
   // ------------------------
   const handleSetSpeed = async (speed) => {
+    setMotorTarget(speed)
     setMotorChanging(true)
     try {
       await fetch("http://127.0.0.1:8000/motor", {
@@ -48,12 +63,11 @@ function App() {
       })
     } catch (err) {
       console.error(err)
-    } finally {
-      setMotorChanging(false)
     }
   }
 
   const handleToggleValve = async (open) => {
+    setValveTarget(open)
     setValveChanging(true)
     try {
       await fetch("http://127.0.0.1:8000/valve", {
@@ -63,10 +77,25 @@ function App() {
       })
     } catch (err) {
       console.error(err)
-    } finally {
-      setValveChanging(false)
     }
   }
+
+  // ------------------------
+  // Sync motorChanging and valveChanging with actual state
+  // ------------------------
+  useEffect(() => {
+    if (motorTarget !== null && motorSpeed === motorTarget) {
+      setMotorChanging(false)
+      setMotorTarget(null)
+    }
+  }, [motorSpeed, motorTarget])
+
+  useEffect(() => {
+    if (valveTarget !== null && valveOpen === valveTarget) {
+      setValveChanging(false)
+      setValveTarget(null)
+    }
+  }, [valveOpen, valveTarget])
 
   // ------------------------
   // Render
@@ -78,12 +107,13 @@ function App() {
         <MotorControl
           motorSpeed={motorSpeed}
           onSetSpeed={handleSetSpeed}
-          changing={motorChanging}
+          targetSpeed={motorTarget}
         />
         <ValveControl
           valveOpen={valveOpen}
           onToggleValve={handleToggleValve}
           changing={valveChanging}
+          target={valveTarget}
         />
         <TemperatureDisplay temperature={temperature} />
       </div>
