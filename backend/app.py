@@ -43,7 +43,7 @@ machine_state = {
 # PLC scan loop
 # -------------------------
 SCAN_INTERVAL = 0.1  # seconds
-VALVE_DELAY = 2    # seconds
+VALVE_DELAY = 5    # seconds
 
 
 async def plc_scan_loop():

@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function MotorControl({ motorSpeed, onSetSpeed, changing }) {
+export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed }) {
   const [inputValue, setInputValue] = useState("")
 
   const handleSubmit = (e) => {
@@ -12,11 +12,13 @@ export default function MotorControl({ motorSpeed, onSetSpeed, changing }) {
   }
 
   return (
-    <div className="p-6 rounded-2xl shadow-lg bg-white hover:shadow-xl transition-shadow">
-      <h2 className="text-xl font-semibold mb-2">Motor Control</h2>
-      <p className="mb-2">
+    <div className="p-6 rounded-2xl shadow-lg bg-white hover:shadow-xl transition-shadow w-80">
+      <h2 className="text-xl font-semibold mb-1">Motor Control</h2>
+      <p className="mb-1">
         Current Speed: <span className="font-bold">{motorSpeed}</span>{" "}
-        {changing && <span className="text-blue-500">(Changing...)</span>}
+        {targetSpeed !== null && motorSpeed !== targetSpeed && (
+          <span className="text-blue-500">(Changing to {targetSpeed}...)</span>
+        )}
       </p>
       <form onSubmit={handleSubmit} className="flex gap-2">
         <input
@@ -25,12 +27,10 @@ export default function MotorControl({ motorSpeed, onSetSpeed, changing }) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Enter new speed"
-          disabled={changing}
         />
         <button
           type="submit"
           className="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-          disabled={changing}
         >
           Set
         </button>
