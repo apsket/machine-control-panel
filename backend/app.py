@@ -43,7 +43,7 @@ machine_state = {
 # PLC scan loop
 # -------------------------
 SCAN_INTERVAL = 0.1  # seconds
-VALVE_DELAY = 5    # seconds
+VALVE_DELAY = 2    # seconds
 
 
 async def plc_scan_loop():
@@ -58,8 +58,8 @@ async def plc_scan_loop():
 
         # Valve: simulate requested state with delay
         if machine_state["valve_open"] != machine_state["valve_target"]:
-            machine_state["valve_open"] = machine_state["valve_target"]
             await asyncio.sleep(VALVE_DELAY)  # emulate physical actuation
+            machine_state["valve_open"] = machine_state["valve_target"]
 
         await asyncio.sleep(SCAN_INTERVAL)
 

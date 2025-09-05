@@ -10,11 +10,13 @@ function App() {
 
   // Flags and targets
   const [motorChanging, setMotorChanging] = useState(false)
+  const [motorTarget, setMotorTarget] = useState(null)
+
   const [valveChanging, setValveChanging] = useState(false)
-  const [motorTarget, setMotorTarget] = useState(null) // new
+  const [valveTarget, setValveTarget] = useState(null)
 
   // ------------------------
-  // Polling loop
+  // Polling loops
   // ------------------------
   useEffect(() => {
     const fetchTemperature = () => {
@@ -51,8 +53,8 @@ function App() {
   // Handlers
   // ------------------------
   const handleSetSpeed = async (speed) => {
-    setMotorTarget(speed)      // set target
-    setMotorChanging(true)     // show "Changing..."
+    setMotorTarget(speed)
+    setMotorChanging(true)
     try {
       await fetch("http://127.0.0.1:8000/motor", {
         method: "POST",
@@ -62,10 +64,10 @@ function App() {
     } catch (err) {
       console.error(err)
     }
-    // Do NOT set motorChanging to false here; let useEffect handle it
   }
 
   const handleToggleValve = async (open) => {
+    setValveTarget(open)
     setValveChanging(true)
     try {
       await fetch("http://127.0.0.1:8000/valve", {
@@ -75,20 +77,25 @@ function App() {
       })
     } catch (err) {
       console.error(err)
-    } finally {
-      setValveChanging(false)
     }
   }
 
   // ------------------------
-  // Keep motorChanging in sync with motorSpeed
+  // Sync motorChanging and valveChanging with actual state
   // ------------------------
   useEffect(() => {
     if (motorTarget !== null && motorSpeed === motorTarget) {
-      setMotorChanging(false)  // reached target
+      setMotorChanging(false)
       setMotorTarget(null)
     }
   }, [motorSpeed, motorTarget])
+
+  useEffect(() => {
+    if (valveTarget !== null && valveOpen === valveTarget) {
+      setValveChanging(false)
+      setValveTarget(null)
+    }
+  }, [valveOpen, valveTarget])
 
   // ------------------------
   // Render
@@ -100,13 +107,13 @@ function App() {
         <MotorControl
           motorSpeed={motorSpeed}
           onSetSpeed={handleSetSpeed}
-          changing={motorChanging}
           targetSpeed={motorTarget}
         />
         <ValveControl
           valveOpen={valveOpen}
           onToggleValve={handleToggleValve}
           changing={valveChanging}
+          target={valveTarget}
         />
         <TemperatureDisplay temperature={temperature} />
       </div>
