@@ -67,3 +67,68 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Add this to the END of your index.css file */
+
+/* Override default button styles for Tailwind components */
+.bg-blue-500,
+.bg-blue-600,
+.bg-red-500,
+.bg-red-600,
+.bg-green-500,
+.bg-green-600 {
+  background-color: var(--tw-bg-opacity, 1) !important;
+}
+
+/* Ensure buttons can be properly styled by Tailwind */
+button.bg-blue-500 {
+  background-color: #3b82f6 !important;
+  padding: 0.5rem 1.25rem !important;
+}
+
+button.bg-blue-600:hover {
+  background-color: #2563eb !important;
+}
+
+button.bg-red-500 {
+  background-color: #ef4444 !important;
+  padding: 0.5rem 1.25rem !important;
+}
+
+button.bg-red-600:hover {
+  background-color: #dc2626 !important;
+}
+
+button.bg-green-500 {
+  background-color: #22c55e !important;
+  padding: 0.5rem 1.25rem !important;
+}
+
+button.bg-green-600:hover {
+  background-color: #16a34a !important;
+}
+
+/* Ensure flex containers work properly */
+.flex {
+  display: flex !important;
+}
+
+.flex-col {
+  flex-direction: column !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.space-y-3 > * + * {
+  margin-top: 0.75rem !important;
+}

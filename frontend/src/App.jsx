@@ -56,14 +56,25 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-6xl">
-        <h1 className="text-4xl font-bold mb-10 text-gray-800 text-center">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-2xl">
+        <h1 className="text-4xl font-bold mb-12 text-gray-800 text-center">
           Machine Control Panel
         </h1>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        
+        <div className="w-full h-px bg-gray-300 border-0 flex-shrink-0">
           <MotorControl motorSpeed={motorSpeed} onSetSpeed={handleSetSpeed} />
+          
+          <div className="w-full max-w-2xl my-8">
+            <hr className="w-full h-px bg-gray-300 border-0" />
+          </div>
+          
           <ValveControl valveOpen={valveOpen} onToggleValve={handleToggleValve} />
+          
+          <div className="w-full max-w-2xl my-8">
+            <hr className="w-full h-px bg-gray-300 border-0" />
+          </div>
+          
           <TemperatureDisplay temperature={temperature} />
         </div>
       </div>

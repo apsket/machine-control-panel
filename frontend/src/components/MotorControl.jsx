@@ -13,8 +13,8 @@ function MotorControl({ motorSpeed, onSetSpeed }) {
 
   return (
     <div className="bg-white shadow-lg rounded-2xl p-6 w-80 flex flex-col items-center text-center">
-      <h2 className="text-xl font-semibold text-gray-700 mb-3">Motor Control</h2>
-      <p className="text-gray-600 mb-4">
+      <h2 className="text-xl font-semibold text-gray-700 -mb-0">Motor Control</h2>
+      <p className="text-gray-600 mb-2">
         Current Speed: <span className="font-bold text-gray-900">{motorSpeed}</span>
       </p>
       <form
