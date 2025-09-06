@@ -83,8 +83,6 @@ Note: For a production environment, a more robust setup would be used, such as a
 
 ## Future Improvements
 
-Environment variables defined for both frontend and backend defined as environment variables at the project root... containerization of the application through docker and docker-compose, standardizing Python version and further  (see the branch `feature/transition-gradual-DOCKER` for progress in containerizing the app)... port selection... improved logging... machine state persistency simulation by saving state to file or using a lightweight database... unit testing... dependency injection... implement authentication... adding plots showing the states of the system in the most recent time window...
-
 ### Environment Variables
 The current project uses hardcoded values for API endpoints. A better practice for production is to use environment variables (e.g., VITE_API_URL for the frontend and .env files for the backend). This separates sensitive information and configuration from the source code, making the application more portable and secure. The backend and frontend can read these variables at runtime, allowing the application to be deployed in different environments without code changes.
 
