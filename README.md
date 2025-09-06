@@ -77,6 +77,12 @@ Note: For a production environment, a more robust setup would be used, such as a
 
 ## Future Improvements
 
+### Limitations
+
+The system has a number of features that could be modified for a nicer user experience. For instance, the minimum and maximum values for motor speed are not shown in the UI. Target speeds are inserted numerically in a UI box. To make the bounded nature of speeds explicit, an input slider would be useful. A slider reflecting the actual motor speed could be a nice feature to add as well.
+
+With regards to the ambient temperature. Currently the latitude and longitude variables are defined as constants in the backend and they are not shown in the dashboard. One could have them displayed and even changed by the user at the UI level. OpenWeather also offers other APIs such as the Geocoding API that returns details such as latitude and longitude from a request with zip code and country code as parameters (https://openweathermap.org/api/geocoding-api). This would allow the user more flexibility in changing the ambient temperature.
+
 ### Environment Variables
 The current project uses hardcoded values for API endpoints. A better practice for production is to use environment variables (e.g., VITE_API_URL for the frontend and .env files for the backend). This separates sensitive information and configuration from the source code, making the application more portable and secure. The backend and frontend can read these variables at runtime, allowing the application to be deployed in different environments without code changes.
 
