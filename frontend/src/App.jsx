@@ -13,7 +13,7 @@ function App() {
   const [valveChanging, setValveChanging] = useState(false)
 
   // ------------------------
-  // Polling loop
+  // Polling loop for machine state
   // ------------------------
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,12 +26,23 @@ function App() {
         .then((res) => res.json())
         .then((data) => setValveOpen(data.open))
         .catch(console.error)
+    }, 500) // poll every 0.5s
+    return () => clearInterval(interval)
+  }, [])
 
+  // ------------------------
+  // Polling loop for temperature
+  // ------------------------
+  useEffect(() => {
+    const fetchTemperature = () => {
       fetch("http://127.0.0.1:8000/temperature")
         .then((res) => res.json())
         .then((data) => setTemperature(data.temperature))
         .catch(console.error)
-    }, 500) // poll every 0.5s
+    }
+
+    fetchTemperature()
+    const interval = setInterval(fetchTemperature, 120000)
     return () => clearInterval(interval)
   }, [])
 
