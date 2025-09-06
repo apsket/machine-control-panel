@@ -47,9 +47,10 @@ Temperature is fetched in real-time from OpenWeatherMap's API. This service prov
 This project is configured to run in a local development environment. This approach was chosen to simplify the setup process and to focus on the core requirements of the task.
 
 ### Starting the Backend:
-1.	Clone the repository to your local machine:
+1.	Clone the repository to your local machine and navigate into the cloned project directory::
 ```
 git clone https://github.com/apsket/machine-control-panel.git
+cd <your-cloned-project-folder>
 ```
 2. Ensure you are checkout out at the correct branch `feature/transition-immediate`:
 ```
