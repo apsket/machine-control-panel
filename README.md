@@ -42,14 +42,39 @@ The valve toggling has a time delay between times of requested and applied chang
 ### Temperature Display
 Temperature is fetched in real-time from OpenWeatherMap's API. This service provider was selected because of its known stability and sufficiency of its free tier offerings. Free tier allows 60 API calls/minute, not exceeding 1,000,000 API calls/month (https://openweathermap.org/full-price#current). The temperature is fetched every 2 minutes. OpenWeatherMap suggests “... making API calls no more than once in 10 minutes for each location, whether you call it by city name, geographical coordinates or by zip code. The update frequency of the OpenWeather model is not higher than once in 10 minutes.” (https://openweathermap.org/appidUpdates). The key to call OpenWeatherMap's free API is defined by `MY_API_KEY`. The location for real-time temperature data is defined by `MY_LATITUDE` and `MY_LONGITUDE`. As of the most recent commit, this location corresponds to approximately the 66260 zip code in San Pedro Garza Garcia, Nuevo Leon, Mexico.
 
-## Installation
-	1.	Clone the repository to your local machine:
+## How to Run
+
+This project is configured to run in a local development environment. This approach was chosen to simplify the setup process and to focus on the core requirements of the task.
+
+### Starting the Backend:
+1.	Clone the repository to your local machine:
 ```
-gh repo clone apsket/machine-control-panel
-cd <your-cloned-repo-folder>
+git clone https://github.com/apsket/machine-control-panel.git
 ```
+2. Navigate to the `backend` directory of the cloned repo and install the requirements in a clean python environment (ideally with Python 3.12.11):
+ ```
+pip install -r requirements.txt
+```
+3. Run the backend:
+ ```
+uvicorn app:app --reload
+```
+This will start the backend API server on `http://127.0.0.1:8000`.
+
+### Starting the Frontend
+4. In a new terminal window, navigate to the `frontend` directory and run:
+ ```
+npm run dev
+```
+This will start the React development server, it should be available at `http://localhost:5173`.
+
+Note: For a production environment, a more robust setup would be used, such as a WSGI server like Gunicorn for the backend and a static file server for the frontend.
+
+### Using the Web App
+Open a window of the web browser of your choice and go to the address defined by the output of the frontend run command (typically should be `http://localhost:5173`). You should now be able to use the web UI to apply changes and see the system's behavior.
+
 
 ## Future Improvements
 
-Environment variables defined for both frontend and backend defined as environment variables at the project root... containerization of the application through docker and docker-compose (see the branch `feature/transition-gradual-DOCKER` for a non-stable progress of such containerization)... port selection... improved logging... machine state persistency simulation by saving state to file or using a lightweight database... unit testing... dependency injection... implement authentication
+Environment variables defined for both frontend and backend defined as environment variables at the project root... containerization of the application through docker and docker-compose, standardizing Python version and further  (see the branch `feature/transition-gradual-DOCKER` for a non-stable progress of such containerization)... port selection... improved logging... machine state persistency simulation by saving state to file or using a lightweight database... unit testing... dependency injection... implement authentication... adding plots showing the states of the system in the most recent time window...
     
