@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from services import get_temperature
+from machine import Machine
+import logging
 
 app = FastAPI(title="Machine Control Panel API")
 # Allow requests from frontend
@@ -20,21 +22,29 @@ app.add_middleware(
 # -----------------------------
 # Data Models
 # -----------------------------
-MIN_MOTOR_SPEED = 0
-MAX_MOTOR_SPEED = 100
 class MotorRequest(BaseModel):
     speed: int
 
 class ValveRequest(BaseModel):
     open: bool
 
+
+# -----------------------------
+# Machine State (in-memory simulation)
+# Logging
+# -----------------------------
+logging.basicConfig(
+    level=logging.INFO,  # minimum level you want to capture
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+
 # -----------------------------
 # Machine State (in-memory simulation)
 # -----------------------------
-machine_state = {
-    "motor_speed": MIN_MOTOR_SPEED,
-    "valve_open": False
-}
+machine = Machine()
 
 # -----------------------------
 # Endpoints
@@ -43,23 +53,24 @@ machine_state = {
 # Motor
 @app.get("/motor")
 def get_motor():
-    return {"speed": machine_state["motor_speed"]}
+    return {"speed": machine.snapshot()["motor_speed"]}
 
 @app.post("/motor")
 def set_motor(req: MotorRequest):
     requested_speed = req.speed
-    machine_state["motor_speed"] = max(MIN_MOTOR_SPEED, min(MAX_MOTOR_SPEED, requested_speed))
-    return {"speed": machine_state["motor_speed"]}
+    logger.info(f"Request to change motor speed to: {requested_speed}")
+    machine.set_motor_speed(requested_speed)
+    return {"speed": machine.snapshot()["motor_speed"]}
 
 # Valve
 @app.get("/valve")
 def get_valve():
-    return {"open": machine_state["valve_open"]}
+    return {"open": machine.snapshot()["valve_open"]}
 
 @app.post("/valve")
 def set_valve(req: ValveRequest):
-    machine_state["valve_open"] = req.open
-    return {"open": machine_state["valve_open"]}
+    machine.update_valve(req.open)
+    return {"open": machine.snapshot()["valve_open"]}
 
 # Temperature
 @app.get("/temperature")

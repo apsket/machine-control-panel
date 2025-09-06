@@ -1,12 +1,7 @@
+from constants import MY_API_KEY, MY_LATITUDE, MY_LONGITUDE
 import requests
 import os
 
-# OpenWeatherMap API
-MY_API_KEY = "4d640b6f767403cfe830188cc777cf00"
-
-# Location parameters
-MY_LATITUDE = "25.6571"
-MY_LONGITUDE = "-100.348"
 
 # Environment variable sourcing
 API_KEY = os.getenv("WEATHER_API_KEY", MY_API_KEY)
