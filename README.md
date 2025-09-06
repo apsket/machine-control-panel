@@ -51,19 +51,25 @@ This project is configured to run in a local development environment. This appro
 ```
 git clone https://github.com/apsket/machine-control-panel.git
 ```
-2. Navigate to the `backend` directory of the cloned repo and install the requirements in a clean python environment (ideally with Python 3.12.11):
+2. Ensure you are checkout out at the correct branch `feature/transition-immediate`:
+```
+git checkout feature/transition-immediate
+```
+
+4. Navigate to the `backend` directory of the cloned repo and install the requirements in a clean python environment (ideally with Python 3.12.11):
  ```
 pip install -r requirements.txt
 ```
-3. Run the backend:
+4. Run the backend:
  ```
 uvicorn app:app --reload
 ```
 This will start the backend API server on `http://127.0.0.1:8000`.
 
 ### Starting the Frontend
-4. In a new terminal window, navigate to the `frontend` directory and run:
+5. In a new terminal window, navigate to the `frontend` directory to install and then run:
  ```
+npm install
 npm run dev
 ```
 This will start the React development server, it should be available at `http://localhost:5173`.
@@ -71,10 +77,34 @@ This will start the React development server, it should be available at `http://
 Note: For a production environment, a more robust setup would be used, such as a WSGI server like Gunicorn for the backend and a static file server for the frontend.
 
 ### Using the Web App
-Open a window of the web browser of your choice and go to the address defined by the output of the frontend run command (typically should be `http://localhost:5173`). You should now be able to use the web UI to apply changes and see the system's behavior.
+6. Open a window of the web browser of your choice and go to the URL defined by the output of the frontend run command (typically should be `http://localhost:5173`). You should now be able to use the web UI to apply changes and see the system's behavior.
 
 
 ## Future Improvements
 
-Environment variables defined for both frontend and backend defined as environment variables at the project root... containerization of the application through docker and docker-compose, standardizing Python version and further  (see the branch `feature/transition-gradual-DOCKER` for a non-stable progress of such containerization)... port selection... improved logging... machine state persistency simulation by saving state to file or using a lightweight database... unit testing... dependency injection... implement authentication... adding plots showing the states of the system in the most recent time window...
-    
+Environment variables defined for both frontend and backend defined as environment variables at the project root... containerization of the application through docker and docker-compose, standardizing Python version and further  (see the branch `feature/transition-gradual-DOCKER` for progress in containerizing the app)... port selection... improved logging... machine state persistency simulation by saving state to file or using a lightweight database... unit testing... dependency injection... implement authentication... adding plots showing the states of the system in the most recent time window...
+
+### Environment Variables
+The current project uses hardcoded values for API endpoints. A better practice for production is to use environment variables (e.g., VITE_API_URL for the frontend and .env files for the backend). This separates sensitive information and configuration from the source code, making the application more portable and secure. The backend and frontend can read these variables at runtime, allowing the application to be deployed in different environments without code changes.
+
+### Containerization with Docker
+Containerizing the application with Docker and Docker Compose would standardize the deployment environment. It ensures that the application, along with its dependencies (Python, Node.js), runs consistently on any system. A Dockerfile for each service (frontend and backend) would define the build environment, and a single docker-compose.yml file would manage both services together. This simplifies the setup process for other developers and for deployment to cloud platforms. (See the branch `feature/transition-gradual-DOCKER` for progress in containerizing the app.)
+
+### Port Selection
+Currently, the application uses hardcoded ports (3000 and 8000). For a production environment, it would be beneficial to make these ports configurable through environment variables. This prevents port conflicts on a server where multiple applications may be running.
+
+### Improved Logging
+Implementing a more robust logging system would be crucial for monitoring and debugging. The current console.error calls are not suitable for production. A professional setup would involve using a logging library to capture detailed information about application events, errors, and performance metrics. These logs can then be centralized for analysis, helping to identify and resolve issues more efficiently.
+
+### Machine State Persistency
+The machine's state (motor speed and valve state) is currently stored in memory and resets when the backend server restarts. To simulate state persistency, you could save the state to a lightweight file (like a JSON file) or a simple, embedded database (such as SQLite). The backend would read the state from the file on startup and write to it whenever a change occurs.
+
+### Unit Testing
+Adding unit tests would ensure the reliability of the application's core logic. For the backend, tests would verify that API endpoints function as expected and that the machine simulation logic is correct. For the frontend, tests would validate that components render correctly and user interactions work as intended. This practice is essential for maintaining code quality and preventing regressions.
+
+### System State Plots
+Adding plots to the dashboard would provide a visual representation of the machine's state over time. You could use a charting library (like Chart.js or D3.js) on the frontend to display a live graph of motor speed or temperature over the most recent time window. This adds a valuable monitoring feature for operators.
+
+	
+## Final Note
+Remember you can access a simpler and stable version of the project available in the branch `feature/transition-immediate`. Just do `git checkout feature/transition-immediate`.
