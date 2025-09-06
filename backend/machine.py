@@ -33,10 +33,12 @@ class Machine:
 
     def step_motor(self, step=MOTOR_STEP):
         old_speed = self.motor_actual_speed
-        if self.motor_target_speed > self.motor_actual_speed:
+        if self.motor_target_speed > self.motor_actual_speed + step:
             self.motor_actual_speed += step
-        elif self.motor_target_speed < self.motor_actual_speed:
+        elif self.motor_target_speed < self.motor_actual_speed - step:
             self.motor_actual_speed -= step
+        else:
+            self.motor_actual_speed = self.motor_target_speed
         logger.info(f"Motor speed updated: {old_speed} → {self.motor_actual_speed}")
     
     def is_motor_speed_to_change(self):
