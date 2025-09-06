@@ -1,6 +1,6 @@
 # Machine Control Panel
 
-Summary: Full-stack application with web-based dashboard for monitoring and control of motor speed, valve, and ambient temperature sensor (fetched from OpenWeatherMap API) in real time. Built with React on the frontend and communicates with a backend API for hardware control.
+Full-stack application with web-based dashboard for monitoring and control of motor speed, valve, and ambient temperature sensor (fetched from OpenWeatherMap API) in real time. Built with React on the frontend and communicates with a backend API for hardware control.
 
 The code in this branch `feature/transition-immediate` updates variables immediately in the backend from requests from the frontend. For a version of the project where values are updated in a asynchronously and in gradual fashion to simulate the physical nature of the system, refer to the branch `feature/transition-gradual` of the present repository.
 
