@@ -52,9 +52,9 @@ This project is configured to run in a local development environment. This appro
 git clone https://github.com/apsket/machine-control-panel.git
 cd <your-cloned-project-folder>
 ```
-2. Ensure you are checkout out at the correct branch `feature/transition-immediate`:
+2. Ensure you are checkout out at the correct branch `feature/transition-gradual`:
 ```
-git checkout feature/transition-immediate
+git checkout feature/transition-gradual
 ```
 
 4. Navigate to the `backend` directory of the cloned repo and install the requirements in a clean python environment (ideally with Python 3.12.11):
@@ -108,4 +108,4 @@ Adding plots to the dashboard would provide a visual representation of the machi
 
 	
 ## Final Note
-Remember you can access a simpler and stable version of the project available in the branch `feature/transition-immediate`. Just do `git checkout feature/transition-immediate`.
+Remember you can access a simpler and stable version of the project available in the branch `feature/transition-immediate`.
