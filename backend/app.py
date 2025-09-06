@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from services import get_temperature
+from machine import Machine, PLC
 import asyncio
+import logging
+
 
 app = FastAPI(title="Machine Control Panel API")
 # Allow requests from frontend
@@ -21,52 +24,36 @@ app.add_middleware(
 # -----------------------------
 # Data Models
 # -----------------------------
-MIN_MOTOR_SPEED = 0
-MAX_MOTOR_SPEED = 100
 class MotorRequest(BaseModel):
     speed: int
 
 class ValveRequest(BaseModel):
     open: bool
 
+
 # -----------------------------
-# Machine State (in-memory simulation)
+# Logging
 # -----------------------------
-machine_state = {
-    "motor_actual_speed": 0,        # current motor speed
-    "motor_target_speed": 0,        # target speed requested via POST
-    "valve_open": False,            # current valve state
-    "valve_target": False,          # target requested via POST
-}
+logging.basicConfig(
+    level=logging.INFO,  # minimum level you want to capture
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+
+# -----------------------------
+# Machine State and PLC objects
+# -----------------------------
+machine = Machine()
+plc = PLC(machine)
 
 # -------------------------
 # PLC scan loop
 # -------------------------
-SCAN_INTERVAL = 0.1  # seconds
-VALVE_DELAY = 2    # seconds
-
-
-async def plc_scan_loop():
-    while True:
-        # Motor: simulate gradual change in speed
-        current_speed = machine_state["motor_actual_speed"]
-        requested_speed = machine_state["motor_target_speed"]
-        if requested_speed < current_speed:
-            machine_state["motor_actual_speed"] -= 1
-        elif requested_speed > current_speed:
-            machine_state["motor_actual_speed"] += 1
-
-        # Valve: simulate requested state with delay
-        if machine_state["valve_open"] != machine_state["valve_target"]:
-            await asyncio.sleep(VALVE_DELAY)  # emulate physical actuation
-            machine_state["valve_open"] = machine_state["valve_target"]
-
-        await asyncio.sleep(SCAN_INTERVAL)
-
-
 @app.on_event("startup")
 async def startup_event():
-    asyncio.create_task(plc_scan_loop())
+    asyncio.create_task(plc.run())
 
 
 # -----------------------------
@@ -76,30 +63,31 @@ async def startup_event():
 # Motor
 @app.get("/motor")
 def get_motor():
-    return {"speed": machine_state["motor_actual_speed"]}
-
+    return {"speed": machine.snapshot()["motor_actual_speed"]}
 
 @app.post("/motor")
 def set_motor(req: MotorRequest):
-    # enforce range of speeds
     requested_speed = req.speed
-    machine_state["motor_target_speed"] = max(MIN_MOTOR_SPEED, min(MAX_MOTOR_SPEED, requested_speed))
-    return {"speed": machine_state["motor_target_speed"]}
+    logger.info(f"Request to change motor speed to: {requested_speed}")
+    machine.set_motor_target(requested_speed)
+    return {"speed": machine.snapshot()["motor_target_speed"]}
 
 
 # Valve
 @app.get("/valve")
 def get_valve():
-    return {"open": machine_state["valve_open"]}
+    return {"open": machine.snapshot()["valve_open"]}
 
 @app.post("/valve")
 def set_valve(req: ValveRequest):
-    machine_state["valve_target"] = req.open
-    return {"open": machine_state["valve_target"]}
+    logger.info(f"Request to change valve state: {'Open' if req.open else 'Closed'}")
+    machine.set_valve_target(req.open)
+    return {"open": machine.snapshot()["valve_target"]}
 
 
 # Temperature
 @app.get("/temperature")
 def get_temp():
+    logger.info(f"Requesting temperature value")
     temperature = get_temperature()
     return {"temperature": temperature}
