@@ -1,9 +1,32 @@
 # Machine Control Panel
 
+**Built a full-stack control dashboard simulating real-world system behavior, using AI-assisted development to rapidly implement a React frontend and asynchronous backend logic.**
+
 Full-stack application with web-based dashboard for monitoring and control of motor speed, valve, and ambient temperature sensor (fetched from OpenWeatherMap API) in real time. Built with React on the frontend and communicates with a backend API for hardware control.
 
 The code in this branch `feature/transition-gradual` simulates some characteristics of physical systems such as a finite rate of change of motor speed and a non-null time interval to toggle the valve state. This was implemented in the backend with the use of asynchronous tasks through the `asycio` Python. For a simpler version of the project where values are updated immediately after changes are requested refer to the `feature/transition-immediate` branch of the present repository.
 
+## Product Capabilities
+
+- Monitor and control system components (motor speed, valve state) in real time.
+- Handle delayed and rate-limited state transitions, reflecting real-world system constraints.
+- Override in-progress actions, enabling dynamic control under changing conditions.
+- Visual feedback for system state changes (“changing to…”) to improve user understanding.
+- Live environmental data integration (temperature via external API).
+
+## Product & System Design Considerations
+
+- Modeled realistic system behavior (rate limits, delays) instead of instant state changes.
+- Designed UI feedback to reflect intermediate states and avoid misleading users.
+- Allowed user overrides during transitions to simulate real operator workflows.
+- Balanced polling frequency (200ms) with responsiveness and system load.
+
+## AI-Assisted Development
+
+- Used AI tools to accelerate frontend development (React, Tailwind), enabling rapid implementation despite limited prior experience.
+- Leveraged AI for debugging, design iteration, and exploring implementation alternatives.
+- Focused on validating behavior and system logic rather than manual implementation details.
+  
 ## Features Overview
 
 	•	Motor Control
@@ -28,6 +51,8 @@ The code in this branch `feature/transition-gradual` simulates some characterist
 	    •	Built with TailwindCSS for styling.
 
 ## Implementation Details
+
+The system is designed to simulate control behavior found in physical systems, using asynchronous backend processes and continuous state evaluation loops.
 
 All backend constants are defined in `backend/constants.py`. The frontend polls motor speed and valve states from the backend every 200 ms.
 
