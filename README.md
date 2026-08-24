@@ -107,9 +107,5 @@ docker compose up -d
 
 ## Development suggestions
 - Add server-side downsampling/aggregation for long windows to reduce payload sizes.
-- Add API tests for telemetry queries and PLC behavior.
-- Persist machine state if you want true restart resilience.
-
----
-
-If anything here is out of date with the state you're seeing, tell me which section to expand or adjust and I'll update it.
+- Add API and unit tests for telemetry queries and PLC behavior.
+- Add Prometheus for metrics generation.
