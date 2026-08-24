@@ -1,4 +1,5 @@
 import { useState } from "react"
+import TelemetryChart from "./TelemetryChart"
 
 export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed, min = 0, max = 100 }) {
   const [inputValue, setInputValue] = useState("")
@@ -47,6 +48,7 @@ export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed, min 
           Set
         </button>
       </form>
+      <TelemetryChart metrics={["motor_actual","motor_target"]} title={["Motor Actual","Motor Target"]} />
     </div>
   )
 }

@@ -6,6 +6,11 @@ from settings import settings
 from machine import Machine, PLC
 import asyncio
 import logging
+from history import init_db, query_history
+import time
+from history import prune_older_than
+from settings import settings
+from pydantic import BaseModel
 
 
 app = FastAPI(title="Machine Control Panel API")
@@ -54,7 +59,20 @@ plc = PLC(machine)
 # -------------------------
 @app.on_event("startup")
 async def startup_event():
+    # initialize telemetry DB
+    await init_db()
     asyncio.create_task(plc.run())
+    # start retention prune loop
+    async def _prune_loop():
+        while True:
+            try:
+                cutoff = int(time.time() * 1000) - settings.TELEMETRY_RETENTION_MS
+                await prune_older_than(cutoff)
+            except Exception:
+                logger.exception("Error in telemetry prune loop")
+            await asyncio.sleep(settings.TELEMETRY_PRUNE_INTERVAL)
+
+    asyncio.create_task(_prune_loop())
 
 
 # -----------------------------
@@ -108,3 +126,27 @@ async def get_temp():
     data = await get_temperature()
     # data is {"temperature": val|None, "timestamp": iso_str|None}
     return data
+
+
+# History
+@app.get("/history")
+async def get_history(start: int = None, end: int = None, limit: int = 1000):
+    """Return telemetry samples. `start` and `end` are unix ms timestamps."""
+    # validate params
+    if limit > 10000:
+        limit = 10000
+    rows = await query_history(start, end, limit)
+    # query_history returns chronological rows when a time window is provided,
+    # and most-recent-first when no window was specified. In either case return
+    # rows as-is (chronological for windowed requests).
+    return rows
+
+
+class ConfigResponse(BaseModel):
+    telemetry_window_ms: int
+
+
+@app.get("/config", response_model=ConfigResponse)
+def get_config():
+    """Return a small runtime configuration useful to the frontend."""
+    return ConfigResponse(telemetry_window_ms=settings.TELEMETRY_WINDOW_MS)

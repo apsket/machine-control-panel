@@ -48,7 +48,7 @@ function App() {
     }
 
     fetchTemperature()
-    const interval = setInterval(fetchTemperature, 10000)
+    const interval = setInterval(fetchTemperature, 30000)
     return () => clearInterval(interval)
   }, [])
 

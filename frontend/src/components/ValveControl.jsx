@@ -1,3 +1,5 @@
+import TelemetryChart from "./TelemetryChart"
+
 export default function ValveControl({ valveOpen, onToggleValve, changing, target }) {
   const direction = changing ? (target ? "Opening..." : "Closing...") : null
   return (
@@ -16,6 +18,7 @@ export default function ValveControl({ valveOpen, onToggleValve, changing, targe
       >
         {valveOpen ? "Close Valve" : "Open Valve"}
       </button>
+      <TelemetryChart metrics={["valve_open"]} title="Valve State (open=1)" />
     </div>
   )
 }

@@ -1,6 +1,9 @@
 from settings import settings
 import logging
 import asyncio
+import time
+from services import get_temperature
+from history import insert_sample
 
 
 # -----------------------------
@@ -87,4 +90,19 @@ class PLC:
                 if self._valve_task is None or self._valve_task.done():
                     self._valve_task = asyncio.create_task(self._do_valve_transition())
             logger.debug(f"PLC scan complete: Motor={self.machine.motor_actual_speed}, Valve={self.machine.valve_open}")
+            # Record a telemetry sample (timestamp in ms)
+            try:
+                temp = None
+                # Use cached temperature if available; avoid blocking fetch where possible
+                try:
+                    tdata = await get_temperature()
+                    temp = tdata.get("temperature")
+                except Exception:
+                    logger.debug("Could not obtain temperature for telemetry sample")
+
+                ts = int(time.time() * 1000)
+                await insert_sample(ts, self.machine.motor_actual_speed, self.machine.motor_target_speed, self.machine.valve_open, temp)
+            except Exception:
+                logger.exception("Failed to record telemetry sample")
+
             await asyncio.sleep(self.scan_interval)

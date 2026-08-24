@@ -1,10 +1,10 @@
-FROM node:18-alpine AS build
+FROM node:20-bullseye-slim AS build
 
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci --silent
+# Install dependencies using package-lock if present for reproducible builds
+COPY package.json package-lock.json* ./
+RUN npm ci --silent || npm install --silent
 
 # Build
 COPY . .

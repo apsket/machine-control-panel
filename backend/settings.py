@@ -38,7 +38,14 @@ class Settings:
     CORS_ORIGINS: str = _getenv("CORS_ORIGINS", "http://localhost:5173")
     LOG_LEVEL: str = _getenv("LOG_LEVEL", "INFO")
     # Weather API cache TTL in seconds (lowered for dev/debugging)
-    WEATHER_CACHE_TTL: int = int(_getenv("WEATHER_CACHE_TTL", "10"))
+    WEATHER_CACHE_TTL: int = int(_getenv("WEATHER_CACHE_TTL", "30"))
+    # Telemetry retention in milliseconds (default 10 minutes)
+    # Telemetry retention in milliseconds (default 10 minutes)
+    TELEMETRY_RETENTION_MS: int = int(_getenv("TELEMETRY_RETENTION_MS", str(10 * 60 * 1000)))
+    # Default window for telemetry charts (ms). Frontend can request this via /config.
+    TELEMETRY_WINDOW_MS: int = int(_getenv("TELEMETRY_WINDOW_MS", str(5 * 60 * 1000)))
+    # How often to run pruning (seconds)
+    TELEMETRY_PRUNE_INTERVAL: int = int(_getenv("TELEMETRY_PRUNE_INTERVAL", "60"))
 
 
 settings = Settings()

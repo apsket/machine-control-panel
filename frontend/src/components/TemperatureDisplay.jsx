@@ -1,3 +1,5 @@
+import TelemetryChart from "./TelemetryChart"
+
 export default function TemperatureDisplay({ temperature, timestamp }) {
   const formatted = timestamp ? new Date(timestamp).toLocaleString() : null
 
@@ -14,6 +16,7 @@ export default function TemperatureDisplay({ temperature, timestamp }) {
       ) : (
         <p className="text-gray-500">Loading...</p>
       )}
+      <TelemetryChart metrics={["temperature"]} title="Ambient Temperature (°C)" />
     </div>
   )
 }
