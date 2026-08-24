@@ -19,7 +19,7 @@ function fmtTime(ts) {
   return d.toLocaleTimeString()
 }
 
-export default function TelemetryChart({ metrics = ["temperature"], title, windowMs: propWindowMs, limit = 10000, chartHeight = 220 }) {
+export default function TelemetryChart({ metrics = ["temperature"], title, windowMs: propWindowMs, limit = 10000, chartHeight = 320 }) {
   const [data, setData] = useState(null)
   const [windowMs, setWindowMs] = useState(propWindowMs || null)
 
@@ -55,7 +55,19 @@ export default function TelemetryChart({ metrics = ["temperature"], title, windo
             return null
           })
           const color = idx === 0 ? 'rgba(59,130,246,1)' : 'rgba(16,185,129,1)'
-          return { label: (Array.isArray(title) ? title[idx] : (title || m)), data: values, borderColor: color, backgroundColor: color.replace('1)', '0.2)'), tension: 0.2, stepped: m === 'valve_open' }
+          const isValve = m === 'valve_open'
+          return {
+            label: (Array.isArray(title) ? title[idx] : (title || m)),
+            data: values,
+            borderColor: color,
+            backgroundColor: color.replace('1)', '0.0)'),
+            tension: isValve ? 0 : 0.05,
+            stepped: isValve,
+            borderWidth: 1.5,
+            pointRadius: isValve ? 2 : 0,
+            pointHoverRadius: 6,
+            fill: false,
+          }
         })
         setData({ labels, datasets })
       } catch (e) {

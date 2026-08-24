@@ -16,7 +16,7 @@ export default function TemperatureDisplay({ temperature, timestamp }) {
       ) : (
         <p className="text-gray-500">Loading...</p>
       )}
-      <TelemetryChart metrics={["temperature"]} title="Ambient Temperature (°C)" chartHeight={220} />
+      <TelemetryChart metrics={["temperature"]} title="Ambient Temperature (°C)" chartHeight={264} />
     </div>
   )
 }

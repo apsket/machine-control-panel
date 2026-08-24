@@ -18,7 +18,7 @@ export default function ValveControl({ valveOpen, onToggleValve, changing, targe
       >
         {valveOpen ? "Close Valve" : "Open Valve"}
       </button>
-      <TelemetryChart metrics={["valve_open"]} title="Valve State (open=1)" chartHeight={180} />
+      <TelemetryChart metrics={["valve_open"]} title="Valve State (open=1)" chartHeight={216} />
     </div>
   )
 }

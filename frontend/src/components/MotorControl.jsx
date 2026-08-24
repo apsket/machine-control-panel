@@ -48,7 +48,7 @@ export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed, min 
           Set
         </button>
       </form>
-      <TelemetryChart metrics={["motor_actual","motor_target"]} title={["Motor Actual","Motor Target"]} chartHeight={260} />
+      <TelemetryChart metrics={["motor_actual","motor_target"]} title={["Motor Actual","Motor Target"]} chartHeight={312} />
     </div>
   )
 }
