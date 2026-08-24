@@ -19,7 +19,7 @@ function fmtTime(ts) {
   return d.toLocaleTimeString()
 }
 
-export default function TelemetryChart({ metrics = ["temperature"], title, windowMs: propWindowMs, limit = 10000 }) {
+export default function TelemetryChart({ metrics = ["temperature"], title, windowMs: propWindowMs, limit = 10000, chartHeight = 220 }) {
   const [data, setData] = useState(null)
   const [windowMs, setWindowMs] = useState(propWindowMs || null)
 
@@ -73,10 +73,12 @@ export default function TelemetryChart({ metrics = ["temperature"], title, windo
   if (!data) return <div className="mt-3 text-sm text-gray-500">Loading chart...</div>
 
   return (
-    <div className="mt-3">
+    <div className="mt-3" style={{ height: chartHeight }}>
       <Line
         data={data}
+        height={chartHeight}
         options={{
+          maintainAspectRatio: false,
           responsive: true,
           plugins: { legend: { display: data.datasets.length > 1 }, title: { display: !!title, text: title } },
           scales: { x: { display: true }, y: { beginAtZero: metrics.length === 1 && metrics[0] === 'valve_open' } },

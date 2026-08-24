@@ -19,7 +19,7 @@ export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed, min 
   }
 
   return (
-    <div className="p-6 rounded-2xl shadow-lg bg-white hover:shadow-xl transition-shadow w-80">
+    <div className="p-6 rounded-2xl shadow-lg bg-white hover:shadow-xl transition-shadow w-full">
       <h2 className="text-xl font-semibold mb-1">Motor Control</h2>
       <p className="mb-1">
         Current Speed: <span className="font-bold">{motorSpeed}</span>{" "}
@@ -48,7 +48,7 @@ export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed, min 
           Set
         </button>
       </form>
-      <TelemetryChart metrics={["motor_actual","motor_target"]} title={["Motor Actual","Motor Target"]} />
+      <TelemetryChart metrics={["motor_actual","motor_target"]} title={["Motor Actual","Motor Target"]} chartHeight={260} />
     </div>
   )
 }

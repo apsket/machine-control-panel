@@ -129,7 +129,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold mb-6">Machine Control Panel</h1>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="controls-row">
         <MotorControl
           motorSpeed={motorSpeed}
           onSetSpeed={handleSetSpeed}

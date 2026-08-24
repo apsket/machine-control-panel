@@ -4,7 +4,7 @@ export default function TemperatureDisplay({ temperature, timestamp }) {
   const formatted = timestamp ? new Date(timestamp).toLocaleString() : null
 
   return (
-    <div className="p-6 rounded-2xl shadow-lg bg-white hover:shadow-xl transition-shadow">
+    <div className="p-6 rounded-2xl shadow-lg bg-white hover:shadow-xl transition-shadow w-full">
       <h2 className="text-xl font-semibold mb-2">Ambient Temperature</h2>
       {temperature !== null ? (
         <>
@@ -16,7 +16,7 @@ export default function TemperatureDisplay({ temperature, timestamp }) {
       ) : (
         <p className="text-gray-500">Loading...</p>
       )}
-      <TelemetryChart metrics={["temperature"]} title="Ambient Temperature (°C)" />
+      <TelemetryChart metrics={["temperature"]} title="Ambient Temperature (°C)" chartHeight={220} />
     </div>
   )
 }
