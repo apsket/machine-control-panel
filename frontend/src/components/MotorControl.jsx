@@ -1,12 +1,18 @@
 import { useState } from "react"
 
-export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed }) {
+export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed, min = 0, max = 100 }) {
   const [inputValue, setInputValue] = useState("")
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (inputValue !== "") {
-      onSetSpeed(Number(inputValue))
+      const parsed = Number(inputValue)
+      if (!Number.isInteger(parsed)) {
+        // rely on browser validation too; avoid sending non-integers
+        return
+      }
+      const intVal = Math.max(min, Math.min(max, Math.round(parsed)))
+      onSetSpeed(intVal)
       setInputValue("") // clear input after submitting
     }
   }
@@ -24,9 +30,15 @@ export default function MotorControl({ motorSpeed, onSetSpeed, targetSpeed }) {
         <input
           type="number"
           className="border border-gray-300 rounded px-2 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          style={{ width: '6rem' }}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onInput={(e) => e.currentTarget.setCustomValidity("")}
+          onInvalid={(e) => e.currentTarget.setCustomValidity(`Please enter an integer between ${min} and ${max}`)}
           placeholder="Enter new speed"
+          step={1}
+          min={min}
+          max={max}
         />
         <button
           type="submit"

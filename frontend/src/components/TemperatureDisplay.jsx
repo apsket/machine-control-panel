@@ -7,7 +7,7 @@ export default function TemperatureDisplay({ temperature, timestamp }) {
       {temperature !== null ? (
         <>
           <p className={`text-lg ${temperature > 30 ? "text-red-500" : "text-blue-500"}`}>
-            🌡️ {temperature.toFixed(1)} °C
+            🌡️ {Number(temperature).toFixed(1)} °C
           </p>
           {formatted && <p className="text-sm text-gray-500">Last updated: {formatted}</p>}
         </>

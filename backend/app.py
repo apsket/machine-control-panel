@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from services import get_temperature
+from settings import settings
 from machine import Machine, PLC
 import asyncio
 import logging
@@ -63,13 +64,28 @@ async def startup_event():
 # Motor
 @app.get("/motor")
 def get_motor():
-    return {"speed": machine.snapshot()["motor_actual_speed"]}
+    snap = machine.snapshot()
+    return {
+        "speed": snap["motor_actual_speed"],
+        "target": snap["motor_target_speed"],
+        "min": settings.MIN_MOTOR_SPEED,
+        "max": settings.MAX_MOTOR_SPEED,
+    }
 
 @app.post("/motor")
 def set_motor(req: MotorRequest):
     requested_speed = req.speed
     logger.info(f"Request to change motor speed to: {requested_speed}")
-    machine.set_motor_target(requested_speed)
+    # Validate integer-ness
+    try:
+        if not float(requested_speed).is_integer():
+            raise HTTPException(status_code=400, detail="Speed must be an integer.")
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Speed must be an integer.")
+
+    # Clamp to backend-approved range
+    clamped = max(settings.MIN_MOTOR_SPEED, min(settings.MAX_MOTOR_SPEED, int(requested_speed)))
+    machine.set_motor_target(clamped)
     return {"speed": machine.snapshot()["motor_target_speed"]}
 
 
