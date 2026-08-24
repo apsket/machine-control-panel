@@ -64,7 +64,7 @@ export default function TelemetryChart({ metrics = ["temperature"], title, windo
             tension: isValve ? 0 : 0.05,
             stepped: isValve,
             borderWidth: 1.5,
-            pointRadius: isValve ? 2 : 0,
+            pointRadius: 0,
             pointHoverRadius: 6,
             fill: false,
           }
