@@ -69,42 +69,62 @@ Temperature is fetched in real-time from OpenWeatherMap's API. This service prov
 
 ## How to Run
 
-This project is configured to run in a local development environment. This approach was chosen to simplify the setup process and to focus on the core requirements of the task.
+This project provides two ways to run the full application locally. The recommended and primary method is Docker Compose (reproducible, fast to start). A local developer workflow is also included below for iterative development.
 
-### Starting the Backend:
-1.	Clone the repository to your local machine and navigate into the cloned project directory::
+### Recommended (primary): Docker Compose
+1. Copy the example env file to the repository root and set your OpenWeatherMap API key:
+```bash
+cp backend/.env.example .env
+# edit .env and set WEATHER_API_KEY=your_openweathermap_api_key_here
 ```
-git clone https://github.com/apsket/machine-control-panel.git
-cd <your-cloned-project-folder>
+2. Build and start both services:
+```bash
+docker compose build
+docker compose up -d
 ```
-2. Ensure you are checkout out at the correct branch `feature/transition-gradual`:
-```
-git checkout feature/transition-gradual
+3. Open the app in your browser:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+4. Stop and remove containers when finished:
+```bash
+docker compose down
 ```
 
-4. Navigate to the `backend` directory of the cloned repo and install the requirements in a clean python environment (ideally with Python 3.12.11):
- ```
+### Developer (optional): Local development without Docker
+Use this workflow for iterative development and debugging.
+
+Backend (Poetry - recommended):
+```bash
+cd backend
+cp .env.example .env
+# install dependencies
+poetry install
+# run local server
+poetry run uvicorn app:app --reload --port 8000
+```
+
+Backend (pip / venv alternative):
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+uvicorn app:app --reload --port 8000
 ```
-4. Run the backend:
- ```
-uvicorn app:app --reload
-```
-This will start the backend API server on `http://127.0.0.1:8000`.
 
-### Starting the Frontend
-5. In a new terminal window, navigate to the `frontend` directory to install and then run:
- ```
+Frontend (Vite):
+```bash
+cd frontend
 npm install
 npm run dev
 ```
-This will start the React development server, it should be available at `http://localhost:5173`.
 
-Note: For a production environment, a more robust setup would be used, such as a WSGI server like Gunicorn for the backend and a static file server for the frontend.
-
-### Using the Web App
-6. Open a window of the web browser of your choice and go to the URL defined by the output of the frontend run command (typically should be `http://localhost:5173`). You should now be able to use the web UI to apply changes and see the system's behavior.
-
+### Quick API checks
+You can exercise the API with curl while the server is running, for example:
+```bash
+curl http://127.0.0.1:8000/motor
+curl -X POST http://127.0.0.1:8000/motor -H 'Content-Type: application/json' -d '{"speed":60}'
+```
 
 ## Future Improvements
 
@@ -112,12 +132,6 @@ Note: For a production environment, a more robust setup would be used, such as a
 The system has a number of features that could be modified for a nicer user experience. For instance, the minimum and maximum values for motor speed are not shown in the UI. Target speeds are inserted numerically in a UI box. To make the bounded nature of speeds explicit, an input slider would be useful. A slider reflecting the actual motor speed could be a nice feature to add as well. When a target valule lies outside of the allowed range for motor speed, the UI will forever display the message 'Changing to `target_speed`...' even after the motor speed stabilizes at the minimum or maximum allowed value. It would be better to remove the changing state message once the motor speed stabilizes.
 
 With regards to the ambient temperature. Currently the latitude and longitude variables are defined as constants in the backend and they are not shown in the dashboard. One could have them displayed and even changed by the user at the UI level. OpenWeather also offers other APIs such as the Geocoding API that returns details such as latitude and longitude from a request with zip code and country code as parameters (https://openweathermap.org/api/geocoding-api). This would allow the user more flexibility in changing the ambient temperature.
-
-### Environment Variables
-The current project uses hardcoded values for API endpoints. A better practice for production is to use environment variables (e.g., VITE_API_URL for the frontend and .env files for the backend). This separates sensitive information and configuration from the source code, making the application more portable and secure. The backend and frontend can read these variables at runtime, allowing the application to be deployed in different environments without code changes.
-
-### Containerization with Docker
-Containerizing the application with Docker and Docker Compose would standardize the deployment environment. It ensures that the application, along with its dependencies (Python, Node.js), runs consistently on any system. A Dockerfile for each service (frontend and backend) would define the build environment, and a single docker-compose.yml file would manage both services together. This simplifies the setup process for other developers and for deployment to cloud platforms. (See the branch `feature/transition-gradual-DOCKER` for progress in containerizing the app.)
 
 ### Port Selection
 Currently, the application uses hardcoded ports (3000 and 8000). For a production environment, it would be beneficial to make these ports configurable through environment variables. This prevents port conflicts on a server where multiple applications may be running.
