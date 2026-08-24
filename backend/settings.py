@@ -37,6 +37,8 @@ class Settings:
     # App / deployment
     CORS_ORIGINS: str = _getenv("CORS_ORIGINS", "http://localhost:5173")
     LOG_LEVEL: str = _getenv("LOG_LEVEL", "INFO")
+    # Weather API cache TTL in seconds
+    WEATHER_CACHE_TTL: int = int(_getenv("WEATHER_CACHE_TTL", "120"))
 
 
 settings = Settings()

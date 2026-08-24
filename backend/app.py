@@ -87,7 +87,8 @@ def set_valve(req: ValveRequest):
 
 # Temperature
 @app.get("/temperature")
-def get_temp():
+async def get_temp():
     logger.info(f"Requesting temperature value")
-    temperature = get_temperature()
-    return {"temperature": temperature}
+    data = await get_temperature()
+    # data is {"temperature": val|None, "timestamp": iso_str|None}
+    return data

@@ -1,16 +1,26 @@
 from settings import settings
-import requests
+import httpx
+import asyncio
+import time
+from datetime import datetime, timezone
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 
-def get_temperature():
-    """Fetch current temperature from OpenWeatherMap using configured settings.
+# Simple in-memory TTL cache for temperature
+_temp_cache = {"value": None, "ts": 0}
+_cache_lock = asyncio.Lock()
 
-    Returns temperature in Celsius or `None` if unavailable.
-    """
+
+class HTTPError(Exception):
+    pass
+
+
+@retry(reraise=True, stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10),
+       retry=retry_if_exception_type((httpx.HTTPError, asyncio.TimeoutError, HTTPError)))
+async def _fetch_temperature_from_api():
     api_key = settings.WEATHER_API_KEY
     if not api_key:
-        print("WEATHER_API_KEY not set in environment; cannot fetch temperature")
-        return None
+        raise HTTPError("WEATHER_API_KEY not set in environment; cannot fetch temperature")
 
     lat = settings.LATITUDE
     lon = settings.LONGITUDE
@@ -18,12 +28,42 @@ def get_temperature():
         f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
     )
 
+    timeout = httpx.Timeout(5.0, connect=5.0)
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        resp = await client.get(weather_url)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("main", {}).get("temp")
+
+
+async def get_temperature():
+    """Return cached temperature and timestamp if fresh, otherwise fetch from API with retries.
+
+    Returns dict: {"temperature": float|None, "timestamp": ISO8601 str|None}
+    """
+    ttl = settings.WEATHER_CACHE_TTL
+    now = time.time()
+
+    async with _cache_lock:
+        if _temp_cache["value"] is not None and (now - _temp_cache["ts"]) < ttl:
+            ts = datetime.fromtimestamp(_temp_cache["ts"], tz=timezone.utc).isoformat()
+            return {"temperature": _temp_cache["value"], "timestamp": ts}
+
     try:
-        response = requests.get(weather_url, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-        return data["main"]["temp"]
+        temp = await _fetch_temperature_from_api()
     except Exception as e:
+        # On failure, return cached value if present, else None
+        async with _cache_lock:
+            if _temp_cache["value"] is not None:
+                ts = datetime.fromtimestamp(_temp_cache["ts"], tz=timezone.utc).isoformat()
+                return {"temperature": _temp_cache["value"], "timestamp": ts}
         print(f"Error fetching temperature: {e}")
-        return None
+        return {"temperature": None, "timestamp": None}
+
+    async with _cache_lock:
+        _temp_cache["value"] = temp
+        _temp_cache["ts"] = time.time()
+        ts = datetime.fromtimestamp(_temp_cache["ts"], tz=timezone.utc).isoformat()
+
+    return {"temperature": temp, "timestamp": ts}
     

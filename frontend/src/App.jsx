@@ -7,6 +7,7 @@ function App() {
   const [motorSpeed, setMotorSpeed] = useState(0)
   const [valveOpen, setValveOpen] = useState(false)
   const [temperature, setTemperature] = useState(null)
+  const [temperatureTs, setTemperatureTs] = useState(null)
 
   // Flags and targets
   const [motorChanging, setMotorChanging] = useState(false)
@@ -22,7 +23,11 @@ function App() {
     const fetchTemperature = () => {
       fetch("http://127.0.0.1:8000/temperature")
         .then((res) => res.json())
-        .then((data) => setTemperature(data.temperature))
+        .then((data) => {
+          // data: { temperature: number|null, timestamp: ISO string|null }
+          setTemperature(data.temperature)
+          setTemperatureTs(data.timestamp)
+        })
         .catch(console.error)
     }
 
@@ -115,7 +120,7 @@ function App() {
           changing={valveChanging}
           target={valveTarget}
         />
-        <TemperatureDisplay temperature={temperature} />
+        <TemperatureDisplay temperature={temperature} timestamp={temperatureTs} />
       </div>
     </div>
   )
