@@ -132,3 +132,8 @@ button.bg-green-600:hover {
 .space-y-3 > * + * {
   margin-top: 0.75rem !important;
 }
+
+/* Tailwind directives - ensure Tailwind utilities are generated */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

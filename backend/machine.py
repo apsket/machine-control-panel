@@ -65,14 +65,26 @@ class PLC:
         self.scan_interval = scan_interval
         self.motor_step = motor_step
         self.valve_delay = valve_delay
+        self._valve_task = None
+
+    async def _do_valve_transition(self):
+        logger.info(f"Starting valve transition task (delay={self.valve_delay}s)")
+        await asyncio.sleep(self.valve_delay)
+        # Apply whichever target is current at the time the delay finishes
+        self.machine.update_valve()
+        logger.info(f"Valve transition complete: open={self.machine.valve_open}")
 
     async def run(self):
         while True:
             logger.debug("Starting PLC scan cycle...")
+            # Motor stepping remains fast and independent
             if self.machine.is_motor_speed_to_change():
                 self.machine.step_motor(self.motor_step)
+
+            # Valve transitions run asynchronously so they don't block motor stepping
             if self.machine.is_valve_to_change():
-                await asyncio.sleep(self.valve_delay)
-                self.machine.update_valve()
+                # start a background task if one isn't already running
+                if self._valve_task is None or self._valve_task.done():
+                    self._valve_task = asyncio.create_task(self._do_valve_transition())
             logger.debug(f"PLC scan complete: Motor={self.machine.motor_actual_speed}, Valve={self.machine.valve_open}")
             await asyncio.sleep(self.scan_interval)

@@ -5,8 +5,12 @@ import TemperatureDisplay from "./components/TemperatureDisplay"
 
 function App() {
   const [motorSpeed, setMotorSpeed] = useState(0)
+  const [motorMin, setMotorMin] = useState(0)
+  const [motorMax, setMotorMax] = useState(100)
   const [valveOpen, setValveOpen] = useState(false)
   const [temperature, setTemperature] = useState(null)
+  const [temperatureTs, setTemperatureTs] = useState(null)
+  const [tempFetchCount, setTempFetchCount] = useState(0)
 
   // Flags and targets
   const [motorChanging, setMotorChanging] = useState(false)
@@ -20,14 +24,31 @@ function App() {
   // ------------------------
   useEffect(() => {
     const fetchTemperature = () => {
-      fetch("http://127.0.0.1:8000/temperature")
-        .then((res) => res.json())
-        .then((data) => setTemperature(data.temperature))
-        .catch(console.error)
+      // Add a cache-busting query param and request no-store to avoid browser cache
+      const url = `http://127.0.0.1:8000/temperature?_=${Date.now()}`
+      console.debug('Fetching temperature from', url)
+      fetch(url, { cache: 'no-store' })
+        .then((res) => {
+          console.debug('Temperature response status:', res.status)
+          return res.json()
+        })
+        .then((data) => {
+          // data: { temperature: number|null, timestamp: ISO string|null }
+          console.debug('Temperature payload:', data)
+          const raw = data.temperature
+          const rounded = raw !== null && raw !== undefined ? Number(Number(raw).toFixed(1)) : null
+          setTemperature(rounded)
+          setTemperatureTs(data.timestamp)
+          // increment a counter to force a render even if numeric value didn't change
+          setTempFetchCount((c) => c + 1)
+        })
+        .catch((err) => {
+          console.error('Error fetching temperature:', err)
+        })
     }
 
     fetchTemperature()
-    const interval = setInterval(fetchTemperature, 120000)
+    const interval = setInterval(fetchTemperature, 10000)
     return () => clearInterval(interval)
   }, [])
 
@@ -35,7 +56,12 @@ function App() {
     const fetchMachineState = () => {
       fetch("http://127.0.0.1:8000/motor")
         .then((res) => res.json())
-        .then((data) => setMotorSpeed(data.speed))
+        .then((data) => {
+          // data: { speed, target?, min?, max? }
+          setMotorSpeed(data.speed)
+          if (typeof data.min === 'number') setMotorMin(data.min)
+          if (typeof data.max === 'number') setMotorMax(data.max)
+        })
         .catch(console.error)
 
       fetch("http://127.0.0.1:8000/valve")
@@ -108,6 +134,8 @@ function App() {
           motorSpeed={motorSpeed}
           onSetSpeed={handleSetSpeed}
           targetSpeed={motorTarget}
+          min={motorMin}
+          max={motorMax}
         />
         <ValveControl
           valveOpen={valveOpen}
@@ -115,7 +143,7 @@ function App() {
           changing={valveChanging}
           target={valveTarget}
         />
-        <TemperatureDisplay temperature={temperature} />
+        <TemperatureDisplay temperature={temperature} timestamp={temperatureTs} />
       </div>
     </div>
   )
