@@ -1,4 +1,4 @@
-from constants import SCAN_INTERVAL, MIN_MOTOR_SPEED, MAX_MOTOR_SPEED, MOTOR_STEP, VALVE_DELAY
+from settings import settings
 import logging
 import asyncio
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class Machine:
-    def __init__(self, min_speed=MIN_MOTOR_SPEED, max_speed=MAX_MOTOR_SPEED):
+    def __init__(self, min_speed=settings.MIN_MOTOR_SPEED, max_speed=settings.MAX_MOTOR_SPEED):
         logger.info(f"Initializing machine...")
         self.motor_actual_speed = 0
         self.motor_target_speed = 0
@@ -31,7 +31,7 @@ class Machine:
     def set_valve_target(self, open: bool):
         self.valve_target = open
 
-    def step_motor(self, step=MOTOR_STEP):
+    def step_motor(self, step=settings.MOTOR_STEP):
         old_speed = self.motor_actual_speed
         if self.motor_target_speed > self.motor_actual_speed + step:
             self.motor_actual_speed += step
@@ -60,7 +60,7 @@ class Machine:
 
 
 class PLC:
-    def __init__(self, machine: Machine, scan_interval=SCAN_INTERVAL, motor_step=MOTOR_STEP, valve_delay=VALVE_DELAY):
+    def __init__(self, machine: Machine, scan_interval=settings.SCAN_INTERVAL, motor_step=settings.MOTOR_STEP, valve_delay=settings.VALVE_DELAY):
         self.machine = machine
         self.scan_interval = scan_interval
         self.motor_step = motor_step
